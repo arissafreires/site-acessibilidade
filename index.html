@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Neurodiversidade: Compreender para Acolher</title>
+  <!-- Fonte acessível (Google Fonts) -->
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&display=swap" rel="stylesheet" />
+  <style>
+    /* ===== VARIÁVEIS ===== */
+    :root {
+      --bg: #F9F9F9;
+      --text: #2C3E50;
+      --card-bg: #FFFFFF;
+      --shadow: rgba(0,0,0,0.05);
+      --accent-blue: #AED6F1;
+      --accent-green: #A9DFBF;
+      --accent-yellow: #F9E79F;
+      --border-radius: 12px;
+      --font: 'Open Sans', Arial, sans-serif;
+      --transition: 0.3s ease;
+    }
+    /* Modo baixo estímulo – sobrescreve variáveis */
+    body.low-stimulus {
+      --bg: #F2F2F2;
+      --text: #1E2A36;
+      --card-bg: #F8F8F8;
+      --shadow: rgba(0,0,0,0.02);
+      --accent-blue: #D4E6F1;
+      --accent-green: #D5F5E3;
+      --accent-yellow: #FDEBD0;
+    }
+    /* ===== RESET ===== */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: var(--font);
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      padding: 0 20px 40px;
+      transition: background var(--transition), color var(--transition);
+    }
+    a {
+      color: var(--text);
+      text-decoration: none;
+    }
+    /* ===== LAYOUT GERAL ===== */
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+    /* ===== MENU FIXO ===== */
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: var(--bg);
+      padding: 14px 0;
+      border-bottom: 1px solid rgba(44,62,80,0.08);
+      backdrop-filter: blur(4px);
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px 20px;
+      transition: background var(--transition);
+    }
+    nav a {
+      font-size: 1rem;
+      font-weight: 600;
+      padding: 6px 0;
+      border-bottom: 2px solid transparent;
+      transition: border-color 0.2s;
+    }
+    nav a:hover {
+      border-bottom-color: var(--accent-blue);
+    }
+    .nav-right {
+      margin-left: auto;
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+    #toggle-low-stimulus {
+      background: var(--accent-blue);
+      border: none;
+      padding: 8px 18px;
+      border-radius: 30px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text);
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    #toggle-low-stimulus:hover {
+      background: #9BC5E0;
+    }
+    /* ===== CABEÇALHO ===== */
+    header {
+      padding: 40px 0 30px;
+      text-align: center;
+    }
+    header h1 {
+      font-size: 2.6rem;
+      font-weight: 400;
+      letter-spacing: -0.5px;
+      margin-bottom: 8px;
+    }
+    header .sub {
+      font-size: 1.2rem;
+      color: #4A5C6E;
+      max-width: 700px;
+      margin: 0 auto;
+    }
+    .brain-header {
+      display: inline-block;
+      margin-bottom: 10px;
+    }
+    /* ===== SEÇÕES ===== */
+    section {
+      margin: 50px 0;
+      scroll-margin-top: 80px;
+    }
+    h2 {
+      font-size: 2rem;
+      font-weight: 400;
+      margin-bottom: 20px;
+      border-left: 6px solid var(--accent-blue);
+      padding-left: 16px;
+    }
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 24px;
+    }
+    /* ===== FLASHCARDS ===== */
+    .flashcard {
+      background: var(--card-bg);
+      border-radius: var(--border-radius);
+      box-shadow: 0 4px 12px var(--shadow);
+      padding: 20px 22px;
+      cursor: pointer;
+      transition: box-shadow 0.2s, transform 0.1s;
+      border: 1px solid rgba(0,0,0,0.02);
+      position: relative;
+    }
+    .flashcard:hover {
+      box-shadow: 0 8px 24px rgba(0,0,0,0.06);
+    }
+    .flashcard:focus-visible {
+      outline: 3px solid var(--accent-blue);
+      outline-offset: 2px;
+    }
+    .flashcard .title {
+      font-size: 1.5rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 6px;
+    }
+    .flashcard .title svg {
+      flex-shrink: 0;
+    }
+    .flashcard .summary {
+      font-size: 1rem;
+      margin-top: 6px;
+    }
+    .flashcard .flashcard-content {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.4s ease, opacity 0.3s ease, margin 0.3s ease;
+      opacity: 0;
+      margin-top: 0;
+    }
+    .flashcard.expanded .flashcard-content {
+      max-height: 500px; /* ajuste conforme necessário */
+      opacity: 1;
+      margin-top: 16px;
+    }
+    .flashcard .btn-expand {
+      background: var(--accent-green);
+      border: none;
+      padding: 6px 18px;
+      border-radius: 30px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text);
+      cursor: pointer;
+      margin-top: 12px;
+      transition: background 0.2s;
+    }
+    .flashcard .btn-expand:hover {
+      background: #8CCCA8;
+    }
+    /* ===== GRÁFICOS (SVG) ===== */
+    .graph-container {
+      background: var(--card-bg);
+      border-radius: var(--border-radius);
+      padding: 24px 20px;
+      box-shadow: 0 2px 10px var(--shadow);
+      margin: 20px 0;
+      overflow-x: auto;
+    }
+    .graph-container svg {
+      display: block;
+      max-width: 100%;
+      height: auto;
+    }
+    .graph-tooltip {
+      cursor: help;
+    }
+    /* ===== CÉREBRO INTERATIVO (com óculos) ===== */
+    .brain-fixed {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      z-index: 200;
+      background: var(--card-bg);
+      border-radius: 50%;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+      width: 80px;
+      height: 80px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+      border: 2px solid var(--accent-yellow);
+    }
+    .brain-fixed:hover {
+      transform: scale(1.05);
+      box-shadow: 0 10px 28px rgba(0,0,0,0.18);
+    }
+    .brain-fixed svg {
+      width: 56px;
+      height: 56px;
+      display: block;
+    }
+    /* ===== MODAL DO CÉREBRO ===== */
+    .modal-overlay {
+      display: none; /* controlado por JS */
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.3);
+      backdrop-filter: blur(4px);
+      z-index: 300;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+    .modal-overlay[style*="display: block"] {
+      display: flex !important;
+    }
+    .modal-box {
+      background: var(--card-bg);
+      max-width: 520px;
+      width: 100%;
+      border-radius: var(--border-radius);
+      padding: 32px 30px 28px;
+      box-shadow: 0 20px 48px rgba(0,0,0,0.2);
+      position: relative;
+      animation: fadeScale 0.25s ease;
+    }
+    @keyframes fadeScale {
+      0% { opacity: 0; transform: scale(0.94); }
+      100% { opacity: 1; transform: scale(1); }
+    }
+    .modal-box .close-modal {
+      position: absolute;
+      top: 12px;
+      right: 18px;
+      font-size: 1.8rem;
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--text);
+      line-height: 1;
+    }
+    .modal-box .close-modal:hover {
+      color: #000;
+    }
+    .modal-box p {
+      font-size: 1.15rem;
+      line-height: 1.7;
+      margin-top: 6px;
+    }
+    .modal-box .emoji-big {
+      font-size: 2.2rem;
+      display: block;
+      margin-bottom: 8px;
+    }
+    /* ===== RODAPÉ ===== */
+    footer {
+      margin-top: 60px;
+      padding-top: 30px;
+      border-top: 1px solid rgba(44,62,80,0.1);
+      font-size: 0.95rem;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    footer a {
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+    /* ===== RESPONSIVO ===== */
+    @media (max-width: 700px) {
+      nav {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 6px;
+      }
+      .nav-right {
+        margin-left: 0;
+        justify-content: space-between;
+      }
+      header h1 { font-size: 2rem; }
+      .brain-fixed { width: 66px; height: 66px; bottom: 20px; right: 20px; }
+      .brain-fixed svg { width: 44px; height: 44px; }
+      .modal-box { padding: 24px 20px; }
+    }
+    @media (max-width: 480px) {
+      body { padding: 0 12px 30px; }
+      h2 { font-size: 1.6rem; }
+    }
+    /* ===== UTILITÁRIOS ===== */
+    .text-center { text-align: center; }
+    .mt-8 { margin-top: 8px; }
+    .mb-8 { margin-bottom: 8px; }
+    .flex { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .gap-4 { gap: 4px; }
+  </style>
+</head>
+<body>
+
+<!-- ===== MENU FIXO ===== -->
+<nav class="container">
+  <a href="#sobre">Sobre</a>
+  <a href="#dificuldades">Dificuldades</a>
+  <a href="#diagnostico">Diagnóstico</a>
+  <a href="#funcionamento">Funcionamento</a>
+  <a href="#flashcards">Cards</a>
+  <div class="nav-right">
+    <button id="toggle-low-stimulus" aria-label="Alternar modo de baixo estímulo">Ativar modo baixo estímulo</button>
+  </div>
+</nav>
+
+<!-- ===== CONTEÚDO PRINCIPAL ===== -->
+<main class="container">
+
+  <!-- CABEÇALHO -->
+  <header>
+    <div class="brain-header">
+      <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="32" cy="32" r="28" fill="#AED6F1" stroke="#2C3E50" stroke-width="1.5" />
+        <path d="M24 22c-3 0-5 4-5 8s2 8 5 8 5-4 5-8-2-8-5-8z" fill="#F9E79F" stroke="#2C3E50" stroke-width="1.2" />
+        <path d="M40 22c3 0 5 4 5 8s-2 8-5 8-5-4-5-8 2-8 5-8z" fill="#F9E79F" stroke="#2C3E50" stroke-width="1.2" />
+        <path d="M28 30c0 2 2 4 4 4s4-2 4-4" stroke="#2C3E50" stroke-width="1.5" stroke-linecap="round" />
+        <circle cx="22" cy="27" r="2" fill="#2C3E50" />
+        <circle cx="42" cy="27" r="2" fill="#2C3E50" />
+      </svg>
+    </div>
+    <h1>Neurodiversidade: Compreender para Acolher</h1>
+    <p class="sub">Informações sobre TDAH, Dislexia e Autismo – desafios e caminhos para o diagnóstico</p>
+  </header>
+
+  <!-- SEÇÃO 1: O QUE É -->
+  <section id="sobre">
+    <h2>O que é neurodivergência?</h2>
+    <div class="card-grid">
+      <div class="flashcard" tabindex="0" role="button">
+        <div class="title">
+          <svg width="32" height="32" viewBox="0 0 32 32"><circle cx="16" cy="16" r="14" fill="#AED6F1"/><path d="M10 14l4 4 8-8" stroke="#2C3E50" stroke-width="2"/></svg>
+          Definição
+        </div>
+        <div class="summary">Cérebros neurodivergentes processam informações de forma diferente, com forças e desafios únicos.</div>
+        <div class="flashcard-content">
+          <p>Neurodivergência é um termo guarda-chuva para variações no funcionamento cerebral, como TDAH, dislexia e autismo. Não são doenças, mas modos naturais de ser.</p>
+        </div>
+        <button class="btn-expand">Saiba mais</button>
+      </div>
+      <div class="flashcard" tabindex="0" role="button">
+        <div class="title">
+          <svg width="32" height="32" viewBox="0 0 32 32"><circle cx="16" cy="16" r="14" fill="#A9DFBF"/><path d="M10 14l4 4 8-8" stroke="#2C3E50" stroke-width="2"/></svg>
+          Inclusão
+        </div>
+        <div class="summary">Ambientes adaptados e compreensão reduzem barreiras e promovem bem-estar.</div>
+        <div class="flashcard-content">
+          <p>Pequenas mudanças – como comunicação clara, rotinas previsíveis e respeito às sensibilidades – fazem grande diferença.</p>
+        </div>
+        <button class="btn-expand">Saiba mais</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- SEÇÃO 2: DIFICULDADES COMUNS + GRÁFICO -->
+  <section id="dificuldades">
+    <h2>Dificuldades comuns</h2>
+    <div class="card-grid">
+      <div class="flashcard" tabindex="0" role="button">
+        <div class="title">🧠 TDAH</div>
+        <div class="summary">Desatenção, impulsividade, hiperfoco e dificuldade em regular a atenção.</div>
+        <div class="flashcard-content">
+          <p>Pessoas com TDAH podem ter grande criatividade e energia, mas sofrem com cobranças por organização e controle.</p>
+        </div>
+        <button class="btn-expand">Saiba mais</button>
+      </div>
+      <div class="flashcard" tabindex="0" role="button">
+        <div class="title">📖 Dislexia</div>
+        <div class="summary">Troca de letras, leitura lenta, dificuldade com rimas e memória fonológica.</div>
+        <div class="flashcard-content">
+          <p>A dislexia não está ligada à inteligência; com métodos adequados, a leitura se torna acessível.</p>
+        </div>
+        <button class="btn-expand">Saiba mais</button>
+      </div>
+      <div class="flashcard" tabindex="0" role="button">
+        <div class="title">🌀 Autismo</div>
+        <div class="summary">Sensibilidades sensoriais, rigidez cognitiva, dificuldade em compreender contextos sociais.</div>
+        <div class="flashcard-content">
+          <p>Pessoas autistas têm interesses intensos e pensamento detalhista; ambientes previsíveis são essenciais.</p>
+        </div>
+        <button class="btn-expand">Saiba mais</button>
+      </div>
+    </div>
+
+    <!-- GRÁFICO DE BARRAS -->
+    <div class="graph-container">
+      <p style="font-weight:600; margin-bottom:12px;">Porcentagem de pessoas que relatam cada dificuldade (dados ilustrativos)</p>
+      <svg width="100%" height="200" viewBox="0 0 500 180" preserveAspectRatio="xMidYMid meet" style="background:transparent;">
+        <!-- Eixos -->
+        <line x1="40" y1="150" x2="480" y2="150" stroke="#2C3E50" stroke-width="1.5" />
+        <line x1="40" y1="150" x2="40" y2="20" stroke="#2C3E50" stroke-width="1.5" />
+        <!-- Barras -->
+        <rect x="60" y="60" width="70" height="90" fill="#AED6F1" rx="4" class="graph-tooltip" data-tooltip="TDAH: 75%"/>
+        <text x="95" y="175" text-anchor="middle" font-size="12" fill="#2C3E50">TDAH</text>
+        <rect x="190" y="40" width="70" height="110" fill="#A9DFBF" rx="4" class="graph-tooltip" data-tooltip="Dislexia: 65%"/>
+        <text x="225" y="175" text-anchor="middle" font-size="12" fill="#2C3E50">Dislexia</text>
+        <rect x="320" y="70" width="70" height="80" fill="#F9E79F" rx="4" class="graph-tooltip" data-tooltip="Autismo: 70%"/>
+        <text x="355" y="175" text-anchor="middle" font-size="12" fill="#2C3E50">Autismo</text>
+        <!-- Rótulos de valor -->
+        <text x="95" y="54" text-anchor="middle" font-size="13" fill="#2C3E50">75%</text>
+        <text x="225" y="34" text-anchor="middle" font-size="13" fill="#2C3E50">65%</text>
+        <text x="355" y="64" text-anchor="middle" font-size="13" fill="#2C3E50">70%</text>
+      </svg>
+    </div>
+  </section>
+
+  <!-- SEÇÃO 3: DESAFIO DA DETECÇÃO + GRÁFICO DE LINHA -->
+  <section id="diagnostico">
+    <h2>O desafio da detecção</h2>
+    <p style="font-size:1.1rem; max-width:700px;">Os sinais são frequentemente confundidos com desinteresse ou falta de esforço. O diagnóstico precoce é fundamental.</p>
+    <div class="graph-container">
+      <p style="font-weight:600; margin-bottom:12px;">Idade média do diagnóstico vs. aparecimento dos primeiros sinais</p>
+      <svg width="100%" height="200" viewBox="0 0 500 180" preserveAspectRatio="xMidYMid meet">
+        <!-- Eixos -->
+        <line x1="50" y1="150" x2="480" y2="150" stroke="#2C3E50" stroke-width="1.5" />
+        <line x1="50" y1="150" x2="50" y2="20" stroke="#2C3E50" stroke-width="1.5" />
+        <!-- Linha: Primeiros sinais -->
+        <polyline points="80,110 200,100 320,90 440,80" stroke="#AED6F1" stroke-width="4" fill="none" stroke-linecap="round" />
+        <text x="70" y="100" font-size="11" fill="#2C3E50">Primeiros sinais</text>
+        <!-- Linha: Diagnóstico -->
+        <polyline points="80,140 200,130 320,120 440,110" stroke="#F9E79F" stroke-width="4" fill="none" stroke-linecap="round" stroke-dasharray="6 4" />
+        <text x="70" y="130" font-size="11" fill="#2C3E50">Diagnóstico</text>
+        <!-- Rótulos eixo X -->
+        <text x="80" y="170" text-anchor="middle" font-size="10" fill="#2C3E50">3-5 anos</text>
+        <text x="200" y="170" text-anchor="middle" font-size="10" fill="#2C3E50">6-8 anos</text>
+        <text x="320" y="170" text-anchor="middle" font-size="10" fill="#2C3E50">9-11 anos</text>
+        <text x="440" y="170" text-anchor="middle" font-size="10" fill="#2C3E50">12+ anos</text>
+        <!-- Legenda inline -->
+        <rect x="320" y="20" width="16" height="16" fill="#AED6F1" rx="2" />
+        <text x="340" y="33" font-size="11" fill="#2C3E50">Primeiros sinais</text>
+        <rect x="420" y="20" width="16" height="16" fill="#F9E79F" rx="2" stroke-dasharray="3 2" />
+        <text x="440" y="33" font-size="11" fill="#2C3E50">Diagnóstico</text>
+      </svg>
+    </div>
+  </section>
+
+  <!-- SEÇÃO 4: FUNCIONAMENTO DO CÉREBRO -->
+  <section id="funcionamento">
+    <h2>Como funciona o cérebro neurodivergente?</h2>
+    <div class="graph-container" style="display:flex; flex-wrap:wrap; align-items:center; gap:20px;">
+      <div style="flex:1; min-width:200px;">
+        <svg width="100%" height="220" viewBox="0 0 200 220" preserveAspectRatio="xMidYMid meet">
+          <!-- Silhueta do cérebro -->
+          <path d="M100 20 C60 20 20 50 20 90 C20 130 50 160 80 180 C90 188 90 200 90 210 L110 210 C110 200 110 188 120 180 C150 160 180 130 180 90 C180 50 140 20 100 20Z" fill="#AED6F1" stroke="#2C3E50" stroke-width="1.5" />
+          <!-- Áreas funcionais simplificadas -->
+          <circle cx="70" cy="70" r="18" fill="rgba(44,62,80,0.15)" stroke="#2C3E50" stroke-width="0.8" />
+          <text x="70" y="75" text-anchor="middle" font-size="8" fill="#2C3E50">Córtex</text>
+          <text x="70" y="85" text-anchor="middle" font-size="8" fill="#2C3E50">pré-frontal</text>
+          <circle cx="130" cy="70" r="18" fill="rgba(44,62,80,0.15)" stroke="#2C3E50" stroke-width="0.8" />
+          <text x="130" y="75" text-anchor="middle" font-size="8" fill="#2C3E50">Lobo</text>
+          <text x="130" y="85" text-anchor="middle" font-size="8" fill="#2C3E50">temporal</text>
+          <circle cx="100" cy="130" r="20" fill="rgba(44,62,80,0.15)" stroke="#2C3E50" stroke-width="0.8" />
+          <text x="100" y="135" text-anchor="middle" font-size="8" fill="#2C3E50">Conexões</text>
+          <text x="100" y="145" text-anchor="middle" font-size="8" fill="#2C3E50">atípicas</text>
+          <!-- Setas -->
+          <line x1="70" y1="100" x2="90" y2="120" stroke="#2C3E50" stroke-width="1" marker-end="url(#arrow)" />
+          <line x1="130" y1="100" x2="110" y2="120" stroke="#2C3E50" stroke-width="1" marker-end="url(#arrow)" />
+          <defs>
+            <marker id="arrow" markerWidth="6" markerHeight="6" refX="4" refY="3" orient="auto">
+              <path d="M0,0 L6,3 L0,6 Z" fill="#2C3E50" />
+            </marker>
+          </defs>
+        </svg>
+      </div>
+      <div style="flex:1.5; min-width:200px;">
+        <p style="font-size:1.05rem;">O cérebro neurodivergente apresenta diferenças na conectividade entre áreas, afetando o processamento sensorial e a execução de tarefas. Isso não é um defeito, mas uma variação natural da cognição humana.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- SEÇÃO 5: FLASHCARDS DETALHADOS (TDAH, Dislexia, Autismo) -->
+  <section id="flashcards">
+    <h2>Flashcards interativos</h2>
+    <div class="card-grid">
+      <!-- TDAH -->
+      <div class="flashcard" tabindex="0" role="button">
+        <div class="title">🧠 TDAH</div>
+        <div class="summary">Desatenção, hiperatividade e impulsividade que impactam o dia a dia.</div>
+        <div class="flashcard-content">
+          <p><strong>Características:</strong> dificuldade em manter foco, esquecimentos, agitação interna, hiperfoco em interesses específicos.</p>
+          <p><strong>Dicas:</strong> dividir tarefas em etapas, usar lembretes visuais, praticar mindfulness.</p>
+        </div>
+        <button class="btn-expand">Saiba mais</button>
+      </div>
+      <!-- Dislexia -->
+      <div class="flashcard" tabindex="0" role="button">
+        <div class="title">📖 Dislexia</div>
+        <div class="summary">Dificuldade na leitura, escrita e ortografia, apesar da inteligência normal.</div>
+        <div class="flashcard-content">
+          <p><strong>Características:</strong> troca de letras (b/d), leitura lenta, dificuldade com rimas e sequências.</p>
+          <p><strong>Dicas:</strong> fontes ampliadas, uso de audiobooks, cores contrastantes para destacar sílabas.</p>
+        </div>
+        <button class="btn-expand">Saiba mais</button>
+      </div>
+      <!-- Autismo -->
+      <div class="flashcard" tabindex="0" role="button">
+        <div class="title">🌀 Autismo</div>
+        <div class="summary">Sensibilidades sensoriais, padrões rígidos e desafios na comunicação social.</div>
+        <div class="flashcard-content">
+          <p><strong>Características:</strong> hipersensibilidade a sons/luzes, necessidade de rotina, interesses restritos e intensos.</p>
+          <p><strong>Dicas:</strong> ambientes calmos, comunicação clara e literal, respeito ao tempo de processamento.</p>
+        </div>
+        <button class="btn-expand">Saiba mais</button>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- ===== RODAPÉ ===== -->
+<footer class="container">
+  <div>
+    <p>🧠 Informação é o primeiro passo para a inclusão.</p>
+    <p style="font-size:0.9rem; opacity:0.8;">Este site é informativo e não substitui diagnóstico médico.</p>
+  </div>
+  <div>
+    <a href="https://www.autism.org.br/" target="_blank">Associação de Autismo</a> •
+    <a href="https://www.tdah.org.br/" target="_blank">ABDA (TDAH)</a> •
+    <a href="https://www.dislexia.org.br/" target="_blank">Dislexia Brasil</a>
+  </div>
+</footer>
+
+<!-- ===== CÉREBRO COM ÓCULOS (FIXO) ===== -->
+<div id="brain-icon" class="brain-fixed" role="button" tabindex="0" aria-label="Clique para ver o resumo descontraído">
+  <svg viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="40" cy="40" r="34" fill="#F9E79F" stroke="#2C3E50" stroke-width="1.8" />
+    <!-- Óculos -->
+    <rect x="18" y="34" width="18" height="14" rx="6" fill="#2C3E50" opacity="0.7" />
+    <rect x="44" y="34" width="18" height="14" rx="6" fill="#2C3E50" opacity="0.7" />
+    <line x1="36" y1="41" x2="44" y2="41" stroke="#2C3E50" stroke-width="2" />
+    <path d="M28 30c-2 0-4 2-4 4s2 4 4 4" stroke="#2C3E50" stroke-width="1.5" stroke-linecap="round" />
+    <path d="M52 30c2 0 4 2 4 4s-2 4-4 4" stroke="#2C3E50" stroke-width="1.5" stroke-linecap="round" />
+    <!-- Sorriso -->
+    <path d="M32 52c3 3 8 3 11 0" stroke="#2C3E50" stroke-width="2" stroke-linecap="round" />
+  </svg>
+</div>
+
+<!-- ===== MODAL DO CÉREBRO ===== -->
+<div id="brain-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-hidden="true">
+  <div class="modal-box">
+    <button class="close-modal" aria-label="Fechar resumo">&times;</button>
+    <span class="emoji-big">🧠✨</span>
+    <p><strong>Resumo descontraído:</strong></p>
+    <p>
+      "E aí, curioso! 👋<br>
+      Resumimos para você: TDAH, dislexia e autismo são jeitos diferentes de o cérebro funcionar – <strong>não são doenças</strong>, são variações humanas. As dificuldades existem, mas com informação e apoio, dá para criar ambientes mais inclusivos. O diagnóstico precoce ajuda a evitar sofrimento desnecessário. Lembre-se: cada mente é um universo. Cuide-se e informe-se! 🧠✨"
+    </p>
+    <p style="margin-top:16px; font-size:0.95rem; border-top:1px solid #eee; padding-top:12px;">Clique fora ou no X para fechar.</p>
+  </div>
+</div>
+
+<!-- ===== JAVASCRIPT ===== -->
+<script>
+  (function() {
+    'use strict';
+
+    // ============================================================
+    // 1. FLASHCARDS – expansão com clique e teclado
+    // ============================================================
+    const flashcards = document.querySelectorAll('.flashcard');
+    flashcards.forEach(card => {
+      // Já tem tabindex e role button no HTML, mas garantimos
+      if (!card.hasAttribute('tabindex')) card.setAttribute('tabindex', '0');
+      card.setAttribute('role', 'button');
+
+      // Clique no card (exceto se for no botão interno, que será tratado separadamente)
+      card.addEventListener('click', function(e) {
+        // Se o clique foi em um botão .btn-expand, não faz nada aqui (o evento do botão cuida)
+        if (e.target.closest('.btn-expand')) return;
+        this.classList.toggle('expanded');
+      });
+
+      // Teclado: Enter/Space ativa
+      card.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          this.classList.toggle('expanded');
+        }
+      });
+
+      // Botão interno .btn-expand
+      const btn = card.querySelector('.btn-expand');
+      if (btn) {
+        btn.addEventListener('click', function(e) {
+          e.stopPropagation(); // Evita dupla ativação
+          const parentCard = this.closest('.flashcard');
+          if (parentCard) parentCard.classList.toggle('expanded');
+        });
+      }
+    });
+
+    // ============================================================
+    // 2. CÉREBRO INTERATIVO – MODAL
+    // ============================================================
+    const brainIcon = document.getElementById('brain-icon');
+    const modal = document.getElementById('brain-modal');
+    const closeModalBtn = modal ? modal.querySelector('.close-modal') : null;
+
+    function openModal() {
+      if (!modal) return;
+      modal.style.display = 'flex';
+      modal.setAttribute('aria-hidden', 'false');
+      // Foco no primeiro elemento interativo do modal
+      const focusable = modal.querySelector('button, a, input');
+      if (focusable) focusable.focus();
+    }
+
+    function closeModal() {
+      if (!modal) return;
+      modal.style.display = 'none';
+      modal.setAttribute('aria-hidden', 'true');
+      if (brainIcon) brainIcon.focus();
+    }
+
+    if (brainIcon && modal) {
+      brainIcon.addEventListener('click', openModal);
+      brainIcon.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          openModal();
+        }
+      });
+
+      if (closeModalBtn) {
+        closeModalBtn.addEventListener('click', closeModal);
+      }
+
+      // Fechar ao clicar no overlay (fora do box)
+      modal.addEventListener('click', function(e) {
+        if (e.target === this) closeModal();
+      });
+
+      // Fechar com ESC
+      document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && modal.style.display === 'flex') {
+          closeModal();
+        }
+      });
+    }
+
+    // ============================================================
+    // 3. NAVEGAÇÃO SUAVE PARA ÂNCORAS
+    // ============================================================
+    const anchorLinks = document.querySelectorAll('a[href^="#"]');
+    anchorLinks.forEach(link => {
+      link.addEventListener('click', function(e) {
+        const targetId = this.getAttribute('href');
+        if (targetId === '#') return;
+        const targetEl = document.querySelector(targetId);
+        if (targetEl) {
+          e.preventDefault();
+          targetEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          history.pushState(null, null, targetId);
+        }
+      });
+    });
+
+    // ============================================================
+    // 4. TOOLTIPS PARA GRÁFICOS (usando data-tooltip)
+    // ============================================================
+    const tooltipEls = document.querySelectorAll('.graph-tooltip');
+    // Criamos um único tooltip flutuante
+    const tooltipDiv = document.createElement('div');
+    tooltipDiv.className = 'custom-tooltip';
+    tooltipDiv.style.cssText = `
+      position: fixed;
+      background: #2C3E50;
+      color: #FFF;
+      padding: 6px 14px;
+      border-radius: 8px;
+      font-size: 14px;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.2s;
+      z-index: 999;
+      max-width: 220px;
+      text-align: center;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      font-family: 'Open Sans', sans-serif;
+    `;
+    document.body.appendChild(tooltipDiv);
+
+    tooltipEls.forEach(el => {
+      const text = el.getAttribute('data-tooltip') || el.getAttribute('title') || '';
+      if (!text) return;
+
+      el.addEventListener('mouseenter', function(e) {
+        tooltipDiv.textContent = text;
+        tooltipDiv.style.opacity = '1';
+        positionTooltip(e);
+      });
+
+      el.addEventListener('mousemove', function(e) {
+        positionTooltip(e);
+      });
+
+      el.addEventListener('mouseleave', function() {
+        tooltipDiv.style.opacity = '0';
+      });
+
+      function positionTooltip(e) {
+        let x = e.clientX + 12;
+        let y = e.clientY - 10;
+        // Garantir que não saia da tela
+        const rect = tooltipDiv.getBoundingClientRect();
+        const w = rect.width || 150; // fallback
+        const h = rect.height || 40;
+        if (x + w > window.innerWidth - 10) x = e.clientX - w - 12;
+        if (y + h > window.innerHeight - 10) y = window.innerHeight - h - 10;
+        if (y < 10) y = 10;
+        tooltipDiv.style.left = x + 'px';
+        tooltipDiv.style.top = y + 'px';
+      }
+    });
+
+    // ============================================================
+    // 5. MODO DE BAIXO ESTÍMULO (toggle)
+    // ============================================================
+    const toggleBtn = document.getElementById('toggle-low-stimulus');
+    if (toggleBtn) {
+      // Verifica localStorage
+      const saved = localStorage.getItem('lowStimulusMode');
+      if (saved === 'true') {
+        document.body.classList.add('low-stimulus');
+        toggleBtn.textContent = 'Desativar modo baixo estímulo';
+      }
+
+      toggleBtn.addEventListener('click', function() {
+        document.body.classList.toggle('low-stimulus');
+        const active = document.body.classList.contains('low-stimulus');
+        localStorage.setItem('lowStimulusMode', active ? 'true' : 'false');
+        this.textContent = active ? 'Desativar modo baixo estímulo' : 'Ativar modo baixo estímulo';
+      });
+    }
+
+    // ============================================================
+    // 6. GARANTIR QUE O MODAL INICIE OCULTO
+    // ============================================================
+    if (modal) {
+      modal.style.display = 'none';
+      modal.setAttribute('aria-hidden', 'true');
+    }
+
+    console.log('🧠 Site Neurodiversidade carregado com sucesso!');
+  })();
+</script>
+
+</body>
+</html>
